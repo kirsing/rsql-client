@@ -8,7 +8,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.swing.text.DateFormatter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,11 @@ public class GenericRsqlSpecification<T> implements Specification<T> {
 
         case EQUAL: {
             if (argument instanceof String) {
-                return builder.like(root.get(property), argument.toString().replace('*', '%'));
+                if (property.equals("dateTimeAppointment")) {
+                    return builder.equal(root.get(property), LocalDateTime.parse((String)argument, DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm")));
+                } else {
+                    return builder.like(root.get(property), argument.toString().replace('*', '%'));
+                }
             } else if (argument == null) {
                 return builder.isNull(root.get(property));
             } else {
